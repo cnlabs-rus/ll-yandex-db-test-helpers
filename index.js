@@ -17,9 +17,9 @@ module.exports = {
                 return TableDescription;
             })));
             while (1) {
-                const nonActiveStatuses = (await Promise.all(this.tables.map(v => {
-                    this.ydb.query('DescribeTable', {TableName: v}).then(({Table}) => Table);
-                }))).filter(v => v.TableStatus !== 'ACTIVE');
+                const nonActiveStatuses = (await Promise.all(this.tables.map(v =>
+                    this.ydb.query('DescribeTable', {TableName: v}).then(({Table}) => Table)
+                ))).filter(v => v.TableStatus !== 'ACTIVE');
                 if (!nonActiveStatuses.length) {
                     break;
                 }
