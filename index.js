@@ -5,7 +5,7 @@ module.exports = {
         constructor({endpoint, keyId, secretKey}) {
             process.env.YDB_PREFIX = (process.env.CI_PROJECT_NAME || process.env.USER) + '/' + new Date().toISOString().replace(/[:.]/g, "-") + "/";
             this.ydb = new YandexDB({
-                endpoint, keyId, secretKey,
+                endpoint, keyId, secretKey, verbose: true
             });
         }
 
