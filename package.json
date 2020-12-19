@@ -1,0 +1,19 @@
+{
+  "name": "@cnlabs/ll-yandex-db-test-helpers",
+  "version": "1.0.0",
+  "description": "Library to work with Yandex Database in GitLab ci/cd pipelines",
+  "main": "index.js",
+  "types": "index.d.js",
+  "keywords": [
+    "yandex-cloud",
+    "yandex-database",
+    "test",
+    "jest"
+  ],
+  "author": "Igor E. Mikhaylyuk <migger@yandex.ru>",
+  "license": "ISC",
+  "repository": "git@github.com:cnlabs-rus/ll-yandex-db-test-helpers.git",
+  "files": [
+    "**/*"
+  ]
+}
