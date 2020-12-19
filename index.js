@@ -31,7 +31,8 @@ module.exports = {
             await Promise.all(this.tables.map(v => this.ydb.query('DeleteTable', {TableName: v})));
 
             while (1) {
-                const deleted = await Promise.all(this.tables.map(v => this.ydb.query('DescribeTable', ({TableName: v}))));
+                const deleted = await Promise.all(this.tables.map(v =>
+                    this.ydb.query('DescribeTable', ({TableName: v})).then(()=>false).catch(()=>true)));
                 if (!deleted.find(deleted => !deleted)) {
                     break;
                 }

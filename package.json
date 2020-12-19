@@ -1,6 +1,6 @@
 {
   "name": "@cnlabs/ll-yandex-db-test-helpers",
-  "version": "2.6.0",
+  "version": "2.7.0",
   "description": "Library to work with Yandex Database in GitLab ci/cd pipelines",
   "main": "index.js",
   "types": "index.d.js",
