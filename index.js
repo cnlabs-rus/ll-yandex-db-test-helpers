@@ -2,10 +2,10 @@ const YandexDB = require('@cnlabs/yandexdb-rest');
 
 module.exports = {
     TestClient: class {
-        constructor({endpoint, keyId, secretKey}) {
+        constructor({endpoint, keyId, secretKey, verbose}) {
             process.env.YDB_PREFIX = (process.env.CI_PROJECT_NAME || process.env.USER) + '/' + new Date().toISOString().replace(/[:.]/g, "-") + "/";
             this.ydb = new YandexDB({
-                endpoint, keyId, secretKey, verbose: true
+                endpoint, keyId, secretKey, verbose
             });
         }
 
