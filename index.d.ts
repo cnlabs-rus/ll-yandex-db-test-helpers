@@ -1,15 +1,18 @@
 import {CreateTableInput} from "aws-sdk/clients/dynamodb";
+import {DynamoDB} from "aws-sdk";
 
-declare interface NewTestClientOptions {
-    endpoint: string;
-    keyId: string;
-    secretKey: string;
+declare module 'll-yandex-db-test-helpers' {
+    interface NewTestClientOptions {
+        endpoint: string;
+        keyId: string;
+        secretKey: string;
+    }
+
+    class TestClient {
+        ydb: DynamoDB;
+        constructor(options: NewTestClientOptions);
+        createTables(tables: [CreateTableInput]);
+        clearAllTables();
+        dropTables();
+    }
 }
-
-declare interface NewTestClientHelpers {
-    beforeAll(context: any, tables: [CreateTableInput]);
-
-    afterAll(context: any);
-}
-
-declare function newTestClient(options: NewTestClientOptions): NewTestClientHelpers;

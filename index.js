@@ -1,65 +1,48 @@
-const AWS = require('aws-sdk');
+const YandexDB = require('@cnlabs/yandexdb-rest');
 
 module.exports = {
-    newTestClient({endpoint, keyId, secretKey}) {
-        process.env.YDB_PREFIX = (process.env.CI_PROJECT_NAME || process.env.USER) + '/' + new Date().toISOString().replace(/[:.]/g, "-") + "/";
-        return {
-            beforeAll: async (context, tableDefinitions) => {
-                context.ydb = new AWS.DynamoDB({
-                    region: 'us-east-1',
-                    endpoint,
-                    accessKeyId: keyId,
-                    secretAccessKey: secretKey,
-                });
-                context.tables = [];
-                await Promise.all(tableDefinitions.map(d => new Promise((resolve, reject) => context.ydb.createTable(
-                    d,
-                    (err, data) => {
-                        if (err) {
-                            reject(err);
-                        } else {
-                            context.tables.push(data.TableDescription.TableName);
-                            resolve(data.TableDescription);
-                        }
-                    })
-                )));
-                while (1) {
-                    const nonActiveStatuses = (await Promise.all(context.tables.map(v => new Promise((resolve, reject) => {
-                        context.ydb.describeTable({TableName: v}, (e, d) => {
-                            if (e) {
-                                reject(e);
-                            } else {
-                                resolve(d.Table);
-                            }
-                        })
-                    })))).filter(v => v.TableStatus !== 'ACTIVE');
-                    if (!nonActiveStatuses.length) {
-                        break;
-                    }
+    TestClient: class {
+        constructor({endpoint, keyId, secretKey}) {
+            process.env.YDB_PREFIX = (process.env.CI_PROJECT_NAME || process.env.USER) + '/' + new Date().toISOString().replace(/[:.]/g, "-") + "/";
+            this.ydb = new YandexDB({
+                endpoint, keyId, secretKey,
+            });
+        }
+
+        async createTables(tableDefinitions) {
+            this.lastTableDefinitions = tableDefinitions;
+            this.tables = [];
+            await Promise.all(tableDefinitions.map(d => this.ydb.query('CreateTable', d).then(({TableDescription}) => {
+                this.tables.push(TableDescription.TableName);
+                return TableDescription;
+            })));
+            while (1) {
+                const nonActiveStatuses = (await Promise.all(this.tables.map(v => {
+                    this.ydb.query('DescribeTable', {TableName: v}).then(({Table}) => Table);
+                }))).filter(v => v.TableStatus !== 'ACTIVE');
+                if (!nonActiveStatuses.length) {
+                    break;
                 }
-                console.log("Created tables: ", context.tables.join(", "));
-            },
-            afterAll: async (context) => {
-                await Promise.all(this.tables.map(v => new Promise((resolve, reject) => {
-                    context.ydb.deleteTable({TableName: v}, (e, d) => {
-                        if (e) {
-                            reject(e);
-                        } else {
-                            resolve(d.TableDescription);
-                        }
-                    })
-                })));
-                while (1) {
-                    const deleted = (await Promise.all(this.tables.map(v => new Promise((resolve, reject) => {
-                        context.ydb.describeTable({TableName: v}, (e, d) => {
-                            resolve(!!e)
-                        });
-                    }))));
-                    if (!deleted.find(deleted => !deleted)) {
-                        break;
-                    }
+            }
+            console.log("Created tables: ", this.tables.join(", "));
+        }
+
+        async dropTables() {
+            await this.ydb.query('DeleteTable', {TableName: v});
+
+            while (1) {
+                const deleted = await Promise.all(this.tables.map(v => this.ydb.query('DescribeTable', ({TableName: v}))));
+                if (!deleted.find(deleted => !deleted)) {
+                    break;
                 }
-            },
+            }
+        }
+
+        async clearAllTables() {
+            if (this.lastTableDefinitions) {
+                this.dropTables();
+                this.createTables(this.lastTableDefinitions)
+            }
         }
     }
 };
