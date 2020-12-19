@@ -55,7 +55,7 @@ module.exports = {
                             resolve(!!e)
                         });
                     }))));
-                    if (!isNotExists.find(deleted => !deleted)) {
+                    if (!deleted.find(deleted => !deleted)) {
                         break;
                     }
                 }

@@ -1,6 +1,6 @@
 {
   "name": "@cnlabs/ll-yandex-db-test-helpers",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Library to work with Yandex Database in GitLab ci/cd pipelines",
   "main": "index.js",
   "types": "index.d.js",
@@ -15,5 +15,9 @@
   "repository": "git@github.com:cnlabs-rus/ll-yandex-db-test-helpers.git",
   "files": [
     "**/*"
-  ]
+  ],
+  "dependencies": {
+    "aws-sdk": "*",
+    "jest": "*"
+  }
 }
