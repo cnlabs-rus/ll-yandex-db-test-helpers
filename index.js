@@ -2,6 +2,7 @@ const AWS = require('aws-sdk');
 
 module.exports = {
     newTestClient({endpoint, keyId, secretKey}) {
+        process.env.YDB_PREFIX = (process.env.CI_PROJECT_NAME || process.env.USER) + '/' + new Date().toISOString().replace(/[:.]/g, "-") + "/";
         return {
             beforeAll: async (context, tableDefinitions) => {
                 context.ydb = new AWS.DynamoDB({
@@ -11,7 +12,6 @@ module.exports = {
                     secretAccessKey: secretKey,
                 });
                 context.tables = [];
-                process.env.YDB_PREFIX = (process.env.CI_PROJECT_NAME || process.env.USER) + '/' + new Date().toISOString().replace(/[:.]/g, "-") + "/";
                 await Promise.all(tableDefinitions.map(d => new Promise((resolve, reject) => context.ydb.createTable(
                     d,
                     (err, data) => {
